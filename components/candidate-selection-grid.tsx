@@ -184,7 +184,7 @@ export default function CandidateSelectionGrid() {
 
             {/* Comparison indicator */}
             {comparisonCandidates.includes(candidate.id) && (
-              <div className='absolute -top-1 -right-1 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center text-xs text-white z-20'>
+              <div className='absolute -top-1 -right-1 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center  z-20'>
                 {comparisonCandidates.indexOf(candidate.id) + 1}
               </div>
             )}
