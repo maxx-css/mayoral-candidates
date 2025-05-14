@@ -82,5 +82,3 @@ export default function CandidateModel({ candidate, position = [0,0,0] }: Candid
     </group>
   );
 }
-
-useGLTF.preload('/assets/max2.glb');

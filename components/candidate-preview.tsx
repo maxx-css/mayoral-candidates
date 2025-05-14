@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { useCanvasContext } from '@/lib/canvas-context';
 import type { Candidate } from '@/lib/candidate-data';
+import CanvasContainer from './canvas-container';
 
 interface CandidatePreviewProps {
   candidate: Candidate;
@@ -35,7 +36,7 @@ export default function CandidatePreview({
     setSelectedCandidates([candidate]);
     return () => {
       //No need to clean up, next component will set its own view
-    }
+    };
   }, [candidate, setViewMode, setSelectedCandidates]);
 
   return (
@@ -119,10 +120,7 @@ export default function CandidatePreview({
             </Button>
           </div>
 
-          {/**Replace the canvas with this placeholder */}
-          <div className='flex-grow relative rounded-lg overflow-hidden border border-gray-700'>
-            {/**The global canvas will render here */}
-          </div>
+          <CanvasContainer className='w-full h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700' id='preview'/>
 
           {!isFullscreen && (
             <Button

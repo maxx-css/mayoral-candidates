@@ -6,6 +6,7 @@ import CandidateStats from './candidate-stats';
 import CandidateControls from './candidate-controls';
 import { candidates } from '@/lib/candidate-data';
 import { useCanvasContext } from '@/lib/canvas-context';
+import CanvasContainer from './canvas-container';
 
 export default function CandidateSelector() {
   const [selectedCandidateIndex, setSelectedCandidateIndex] = useState(0);
@@ -35,9 +36,7 @@ export default function CandidateSelector() {
     <div className='w-full h-screen flex flex-col md:flex-row bg-gray-900 text-white'>
       {/* 3D Viewer Section */}
       <div className='w-full md:w-2/3 h-1/2 md:h-screen relative'>
-        <div className='w-full h-full'>
-          {/*Global canvas will render here*/}
-        </div>
+        <CanvasContainer className='w-full h-full' id='selector'/>
 
         {/* Selection Controls Overlay */}
         <div className='absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10'>

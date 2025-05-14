@@ -6,27 +6,28 @@ import { Suspense, useEffect } from 'react';
 import { Environment, OrbitControls } from '@react-three/drei';
 import { useCanvasContext } from '@/lib/canvas-context';
 import CandidateModel from './candidate-model';
-import CandidateGrid from './candidate-grid'; // Add this import
-
-//Add a WebGL context loss handler
-const handleContextLost = (event: Event) => {
-  event.preventDefault();
-  console.log('WebGL context lost - attempting to reset');
-};
-
-const handleContextRestored = () => {
-  console.log('WebGL context restored');
-};
+import CandidateGrid from './candidate-grid';
+import { createPortal } from 'react-dom';
 
 export default function GlobalCanvas() {
-  const { viewMode, selectedCandidates } = useCanvasContext();
+  const { viewMode, selectedCandidates, targetRef } = useCanvasContext();
 
   useEffect(() => {
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      console.log('WebGL context lost - will attempt to restore');
+    };
+
+    const handleContextRestored = () => {
+      console.log('WebGL context restored successfully');
+    };
+
     const canvas = document.querySelector('canvas');
     if (canvas) {
       canvas.addEventListener('webglcontextlost', handleContextLost);
-      canvas.addEventListener('webglcontext restored', handleContextRestored);
+      canvas.addEventListener('webglcontextrestored', handleContextRestored);
     }
+
     return () => {
       if (canvas) {
         canvas.removeEventListener('webglcontextlost', handleContextLost);
@@ -38,7 +39,28 @@ export default function GlobalCanvas() {
     };
   }, []);
 
-  return (
+  useEffect(() => {
+    fetch('/assets/max2.glb')
+      .then((response) => {
+        if (response.ok) {
+          console.log('Model File Exists');
+        } else {
+          console.error('Model file not found:', response.status);
+        }
+      })
+      .catch((error) => {
+        console.error('Error checking modal file', error);
+      });
+  }, []);
+
+  if (!targetRef.current) {
+    //If not target element has been registered, don't render
+    console.log('No target element registered for canvas');
+
+    return null;
+  }
+
+  return createPortal(
     <div className='w-full h-full'>
       <Canvas
         shadows
@@ -47,6 +69,9 @@ export default function GlobalCanvas() {
           powerPreference: 'high-performance',
           antialias: true,
           failIfMajorPerformanceCaveat: false,
+          //import for performance
+          alpha: true,
+          preserveDrawingBuffer: true,
         }}
       >
         <Suspense fallback={null}>
@@ -68,14 +93,14 @@ export default function GlobalCanvas() {
           )}
 
           {/*Single candidate modes*/}
-          {viewMode === 'single' ||
+          {(viewMode === 'single' ||
             viewMode === 'preview' ||
-            (viewMode === 'selector' && selectedCandidates.length > 0 && (
+            viewMode === 'selector') && selectedCandidates.length > 0 && (
               <CandidateModel candidate={selectedCandidates[0]} />
-            ))}
+            )}
 
           {/*Grid Mode*/}
-          {viewMode === 'grid' && (
+          {viewMode === 'grid' && selectedCandidates.length > 0 && (
             <CandidateGrid candidates={selectedCandidates} />
           )}
 
@@ -88,6 +113,7 @@ export default function GlobalCanvas() {
           />
         </Suspense>
       </Canvas>
-    </div>
+    </div>,
+    targetRef.current
   );
 }

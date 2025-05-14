@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import type { Candidate } from '@/lib/candidate-data';
 import { useCanvasContext } from '@/lib/canvas-context';
+import CanvasContainer from './canvas-container';
 
 interface CandidateComparisonProps {
   candidate1: Candidate;
@@ -23,7 +24,7 @@ export default function CandidateComparison({
     setSelectedCandidates([candidate1, candidate2]);
 
     return () => {
-  //No need for cleanup
+      //No need for cleanup
     };
   }, [candidate1, candidate2, setViewMode, setSelectedCandidates]);
 
@@ -221,7 +222,7 @@ export default function CandidateComparison({
 
       {/* CONSOLIDATED 3D CANVAS - This is the key change */}
       <div className='w-full h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700'>
-        <div id="candidate-comparison-canvas" className='w-full h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700'>
+        <CanvasContainer className='w-full h-full' id='comparison'/>
 
         {/* Divider line between candidates */}
         <div className='absolute top-0 bottom-0 left-1/2 w-0.5 bg-gray-700 transform -translate-x-1/2'></div>
@@ -235,7 +236,6 @@ export default function CandidateComparison({
           className='absolute bottom-0 right-0 w-1/2 h-1'
           style={{ backgroundColor: candidate2.color }}
         ></div>
-        </div>
       </div>
     </div>
   );
