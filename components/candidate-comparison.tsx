@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import PersistentCanvas from './persistent-canvas';
 import type { Candidate } from '@/lib/candidate-data';
+import { useMobile } from '@/hooks/use-mobile';
 
 interface CandidateComparisonProps {
   candidate1: Candidate;
@@ -15,6 +16,7 @@ export default function CandidateComparison({
   candidate2,
 }: CandidateComparisonProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const  { isMobile } = useMobile()
 
   return (
     <div className='relative overflow-hidden rounded-xl bg-gray-800 shadow-xl'>
@@ -27,8 +29,8 @@ export default function CandidateComparison({
       ></div>
 
       {/* Header */}
-      <div className='relative z-10 border-b border-gray-700 p-4 flex justify-between items-center'>
-        <h2 className='text-2xl font-bold'>Candidate Comparison</h2>
+      <div className='relative z-10 border-b border-gray-700 p-3 flex justify-between items-center'>
+        <h2 className='text-xl md:text-2xl font-bold'>Candidate Comparison</h2>
         <Button
           variant='outline'
           size='sm'
@@ -37,22 +39,28 @@ export default function CandidateComparison({
           {isFullscreen ? (
             <>
               <Minimize2 className='h-4 w-4 mr-1' />
-              Exit Fullscreen
+              <span className='hidden md:inline'>Exit Fullscreen</span>
             </>
           ) : (
             <>
               <Maximize2 className='h-4 w-4 mr-1' />
-              Fullscreen
+              <span className='hidden md:inline'>Fullscreen</span>
             </>
           )}
         </Button>
       </div>
 
-      <div className='relative z-10 grid grid-cols-2 divide-x divide-gray-700'>
+      <div
+        className={`relative z-10 ${
+          isMobile && !isFullscreen
+            ? 'flex flex-col'
+            : 'grid grid-cols-2 divide-x divide-gray-700'
+        }`}
+      >
         {/* Candidate 1 */}
-        <div className='p-6'>
-          <div className='flex flex-col items-center mb-6'>
-            <h3 className='text-xl font-bold'>{candidate1.name}</h3>
+        <div className='p-4 md:p-6'>
+          <div className='flex flex-col items-center mb-4 md:mb-6'>
+            <h3 className='text-lg md:text-xl font-bold'>{candidate1.name}</h3>
             <div className='flex items-center mt-1 mb-3'>
               <span
                 className='inline-block w-3 h-3 rounded-full mr-2'
@@ -62,8 +70,12 @@ export default function CandidateComparison({
             </div>
 
             {/* 3D Model */}
-            <div className='w-full h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700'>
-              <PersistentCanvas candidate={candidate1} />
+            <div className='w-full h-[150px] md:h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700'>
+              <PersistentCanvas
+                candidate={candidate1}
+                height='h-[150px] md:h-[200px]'
+                lowPerformance={isMobile}
+              />
 
               {/* Platform color indicator */}
               <div
@@ -74,14 +86,16 @@ export default function CandidateComparison({
           </div>
 
           {!isFullscreen && (
-            <div className='space-y-6'>
+            <div className='space-y-4 md:space-y-6'>
               {/* Background */}
               <div>
                 <h4 className='text-md font-semibold mb-2 flex items-center'>
                   <Briefcase className='w-4 h-4 mr-2 text-gray-400' />
                   Background
                 </h4>
-                <p className='text-sm text-gray-300'>{candidate1.background}</p>
+                <p className='text-xs md:text-sm text-gray-300'>
+                  {candidate1.background}
+                </p>
               </div>
 
               {/* Key Policies */}
@@ -92,7 +106,10 @@ export default function CandidateComparison({
                 </h4>
                 <ul className='space-y-2'>
                   {candidate1.keyPolicies.map((policy, index) => (
-                    <li key={index} className='flex items-start text-sm'>
+                    <li
+                      key={index}
+                      className='flex items-start text-xs md:text-sm'
+                    >
                       <span
                         className='inline-block w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs mr-2'
                         style={{ backgroundColor: `${candidate1.color}40` }}
@@ -115,10 +132,10 @@ export default function CandidateComparison({
                   {candidate1.stats.map((stat, index) => (
                     <div key={index}>
                       <div className='flex justify-between mb-1'>
-                        <span className='text-sm font-medium text-gray-300'>
+                        <span className='text-xs md:text-sm font-medium text-gray-300'>
                           {stat.name}
                         </span>
-                        <span className='text-sm font-medium text-gray-300'>
+                        <span className='text-xs md:text-sm font-medium text-gray-300'>
                           {stat.value}/10
                         </span>
                       </div>
@@ -140,9 +157,9 @@ export default function CandidateComparison({
         </div>
 
         {/* Candidate 2 */}
-        <div className='p-6'>
-          <div className='flex flex-col items-center mb-6'>
-            <h3 className='text-xl font-bold'>{candidate2.name}</h3>
+        <div className='p-4 md:p-6'>
+          <div className='flex flex-col items-center mb-4 md:mb-6'>
+            <h3 className='text-lg md:text-xl font-bold'>{candidate2.name}</h3>
             <div className='flex items-center mt-1 mb-3'>
               <span
                 className='inline-block w-3 h-3 rounded-full mr-2'
@@ -152,8 +169,12 @@ export default function CandidateComparison({
             </div>
 
             {/* 3D Model */}
-            <div className='w-full h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700'>
-              <PersistentCanvas candidate={candidate2} />
+            <div className='w-full h-[150px] md:h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700'>
+              <PersistentCanvas
+                candidate={candidate2}
+                height='h-[150px] md:h-[200px]'
+                lowPerformance={isMobile}
+              />
 
               {/* Platform color indicator */}
               <div
@@ -164,14 +185,16 @@ export default function CandidateComparison({
           </div>
 
           {!isFullscreen && (
-            <div className='space-y-6'>
+            <div className='space-y-4 md:space-y-6'>
               {/* Background */}
               <div>
                 <h4 className='text-md font-semibold mb-2 flex items-center'>
                   <Briefcase className='w-4 h-4 mr-2 text-gray-400' />
                   Background
                 </h4>
-                <p className='text-sm text-gray-300'>{candidate2.background}</p>
+                <p className='text-xs md:text-sm text-gray-300'>
+                  {candidate2.background}
+                </p>
               </div>
 
               {/* Key Policies */}
@@ -182,7 +205,10 @@ export default function CandidateComparison({
                 </h4>
                 <ul className='space-y-2'>
                   {candidate2.keyPolicies.map((policy, index) => (
-                    <li key={index} className='flex items-start text-sm'>
+                    <li
+                      key={index}
+                      className='flex items-start text-xs md:text-sm'
+                    >
                       <span
                         className='inline-block w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs mr-2'
                         style={{ backgroundColor: `${candidate2.color}40` }}
@@ -205,10 +231,10 @@ export default function CandidateComparison({
                   {candidate2.stats.map((stat, index) => (
                     <div key={index}>
                       <div className='flex justify-between mb-1'>
-                        <span className='text-sm font-medium text-gray-300'>
+                        <span className='text-xs md:text-sm font-medium text-gray-300'>
                           {stat.name}
                         </span>
-                        <span className='text-sm font-medium text-gray-300'>
+                        <span className='text-xs md:text-sm font-medium text-gray-300'>
                           {stat.value}/10
                         </span>
                       </div>

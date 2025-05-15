@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     'interactive',
   ],
   authors: [{ name: 'NYC Votes 3D Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+  viewport: 'width=device-width, initial-scale=1 maximum-scale=1, user-scalable=no',
   icons: {
     // icon: '/favicon.ico',
   },

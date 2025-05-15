@@ -7,6 +7,7 @@ import CandidatePreview from './candidate-preview';
 import CandidateComparison from './candidate-comparison';
 import { Button } from '@/components/ui/button';
 import { X, Scale } from 'lucide-react';
+import { useMobile } from '@/hooks/use-mobile';
 
 type Candidate = {
   id: number;
@@ -41,6 +42,7 @@ export default function CandidateSelectionGrid() {
     []
   );
   const [isComparing, setIsComparing] = useState(false);
+    const { isMobile } = useMobile();
 
   //Keep track of the previous candidate to prevent unnecessary re-renders
   const prevCandidateRef = useRef(selectedCandidate.id);
@@ -90,13 +92,13 @@ export default function CandidateSelectionGrid() {
   }
 
   return (
-    <div className='space-y-12'>
+    <div className='space-y-6 md:space-y-12'>
       {/*Comparison Bar*/}
       {comparisonCandidates.length > 0 && (
-        <div className='bg-grey-800 rounded-lg p-3 flex items-center justify-between'>
-          <div className='flex items-center'>
+        <div className='bg-gray-800 rounded-lg p-2 md:p-3 flex flex-col md:flex-row md:items-center justify-between'>
+          <div className='flex items-center mb-2 md:mb-0'>
             <Scale className='h-5 w-5 mr-2 text-purple-400' />
-            <span className='font-medium'>
+            <span className='font-medium text-sm md:text-base'>
               {comparisonCandidates.length === 1
                 ? '1 Candidate selected for comparison'
                 : '2 Candidates selected for comparison'}
@@ -109,13 +111,17 @@ export default function CandidateSelectionGrid() {
                 className={
                   isComparing ? 'bg-purple-600 hover:bg-purple-700' : ''
                 }
-                size='sm'
+                size={isMobile ? 'sm' : 'default'}
                 onClick={toggleComparisonView}
               >
                 {isComparing ? 'Exit Comparison' : 'Compare Now'}
               </Button>
             )}
-            <Button variant='outline' size='sm' onClick={clearComparison}>
+            <Button
+              variant='outline'
+              size={isMobile ? 'sm' : 'default'}
+              onClick={clearComparison}
+            >
               <X className='h-4 w-4 mr-1' />
               Clear
             </Button>
@@ -145,7 +151,7 @@ export default function CandidateSelectionGrid() {
         )}
       </div>
       {/*Character selection grid*/}
-      <div className='grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-3 md:gap-4 max-w-5xl mx-auto'>
+      <div className='grid grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-2 md:gap-3 lg:gap-4 max-w-5xl mx-auto'>
         {candidates.map((candidate, index) => (
           <motion.div
             key={candidate.id}
@@ -157,6 +163,7 @@ export default function CandidateSelectionGrid() {
                 : ''
             }`}
             whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+            whileTap={{ scale: 0.95 }} // Add tap animation for mobile
             onClick={() => handleSelectedCandidate(candidate)}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
@@ -173,7 +180,7 @@ export default function CandidateSelectionGrid() {
               {/*Portrait*/}
               <div className='h-full w-full relative flex items-center justify-center'>
                 <div className='absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-80'></div>
-                <div className='w-3/4 h-3/4 rounded-full bg-gray-800 flex items-center justify-center text-3xl font-bold relative z-10'>
+                <div className='w-3/4 h-3/4 rounded-full bg-gray-800 flex items-center justify-center text-2xl md:text-3xl font-bold relative z-10'>
                   {candidate.name.charAt(0)}
                 </div>
               </div>
@@ -196,15 +203,16 @@ export default function CandidateSelectionGrid() {
       </div>
       {/*Random Tile*/}
       <motion.div
-        className='relative cursor-pointer w-full max-w-[120px] mx-auto mt-4'
+        className='relative cursor-pointer w-full max-w-[100px] md:max-w-[120px] mx-auto mt-4'
         whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+        whileTap={{ scale: 0.95 }} // Add tap animation for mobile
         onClick={() => {
           const randomIndex = Math.floor(Math.random() * candidates.length);
           handleSelectedCandidate(candidates[randomIndex]);
         }}
       >
         <div className='aspect-square overflow-hidden rounded-md bg-gray-700 flex items-center justify-center'>
-          <div className='text-4xl font-bold'>?</div>
+          <div className='text-3xl md:text-4xl font-bold'>?</div>
         </div>
         <div className='absolute bottom-0 left-0 right-0 text-center p-1 text-white text-xs font-bold uppercase tracking-wider'>
           Random

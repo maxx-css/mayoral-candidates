@@ -1,26 +1,33 @@
 'use client';
 
 import type React from 'react';
+import * as THREE from 'three';
 import { useRef, useEffect, useState } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import FallbackCandidateView from './fallback-candidate-view';
 import type { Candidate } from '@/lib/candidate-data';
+import { useMobile } from '@/hooks/use-mobile';
 
 //This component handles the camera and scene setup
-function SceneSetup() {
+function SceneSetup({ lowPerformance = false }) {
   const { gl } = useThree();
 
   useEffect(() => {
-    //Set renderer parameters for better performance
-    gl.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
+    // Set renderer parameters based on performance mode
+    if (lowPerformance) {
+      gl.setPixelRatio(1); // Lower pixel ratio for mobile
+      gl.setClearColor(0x111827, 1); // Set background color directly for better performance
+    } else {
+      gl.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
+    }
 
     //Clean up function to prevent memory leaks
     return () => {
       //Dispose of the renderer when component unmounts
       gl.dispose();
     };
-  }, [gl]);
+  }, [gl, lowPerformance]);
 
   return null;
 }
@@ -58,12 +65,20 @@ function ContextEventHandler({ onContextLost }: { onContextLost: () => void }) {
 }
 
 //This component renders the candidate model
-function CandidateShape({ candidate }: { candidate: Candidate }) {
+function CandidateShape({
+  candidate,
+  lowPerformance = false,
+}: {
+  candidate: Candidate;
+  lowPerformance?: boolean;
+}) {
+  // Use simpler geometry for mobile
+  const platformSegments = lowPerformance ? 16 : 32;
   return (
     <group>
       {/* Platform */}
       <mesh receiveShadow position={[0, -1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[2, 2, 0.1, 32]} />
+        <cylinderGeometry args={[2, 2, 0.1, platformSegments]} />
         <meshStandardMaterial color={candidate.color} />
       </mesh>
 
@@ -119,15 +134,21 @@ function ErrorBoundary({
 interface PersistentCanvasProps {
   candidate: Candidate;
   height?: string;
+  lowPerformance?: boolean;
 }
 
 export default function PersistentCanvas({
   candidate,
   height = 'h-full',
+  lowPerformance = false,
 }: PersistentCanvasProps) {
   const [isWebGLAvailable, setIsWebGLAvailable] = useState(true);
   const [hasRenderingFailed, setHasRenderingFailed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+    const { isMobile } = useMobile();
+
+    // Combine passed lowPerformance prop with mobile detection
+    const usePerformanceMode = lowPerformance || isMobile;
 
   useEffect(() => {
     // Check if WebGL is available
@@ -158,8 +179,10 @@ export default function PersistentCanvas({
       <ErrorBoundary onError={handleRenderingError}>
         <Canvas
           ref={canvasRef}
-          shadows
+          shadows={!usePerformanceMode} //disable shadows on mobile for performance
           camera={{ position: [0, 0, 5], fov: 50 }}
+          dpr={usePerformanceMode ? 1 : [1, 2]} // Lower DPR for mobile
+          performance={{ min: 0.5 }} // Allow frame rate to drop for better performance
           onCreated={({ gl }) => {
             // The canvas element is what we need to listen for WebGL context errors
             const canvas = gl.domElement;
@@ -171,25 +194,38 @@ export default function PersistentCanvas({
           }}
         >
           {/* Scene setup */}
-          <SceneSetup />
+          <SceneSetup lowPerformance={usePerformanceMode} />
 
           {/* Context event handler */}
           <ContextEventHandler onContextLost={handleRenderingError} />
 
           {/* Lighting */}
           <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
+          <directionalLight
+            position={[10, 10, 5]}
+            intensity={1}
+            castShadow={!usePerformanceMode} // Disable shadow casting on mobile
+          />
 
           {/* Candidate model */}
-          <CandidateShape candidate={candidate} />
+          <CandidateShape
+            candidate={candidate}
+            lowPerformance={usePerformanceMode}
+          />
 
-          {/* Controls */}
+          {/* Controls - optimized for touch */}
           <OrbitControls
             enableZoom={false}
             enablePan={false}
             rotateSpeed={0.5}
             autoRotate
-            autoRotateSpeed={1}
+            autoRotateSpeed={usePerformanceMode ? 0.5 : 1} // Slower rotation on mobile
+            enableDamping={true}
+            dampingFactor={0.2} // Smoother controls for touch
+            touches={{
+              ONE: THREE.TOUCH.ROTATE,
+              TWO: THREE.TOUCH.DOLLY_PAN,
+            }}
           />
         </Canvas>
       </ErrorBoundary>
