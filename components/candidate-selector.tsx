@@ -1,26 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, Suspense } from 'react';
+import { Canvas } from '@react-three/fiber'
+import { Environment, OrbitControls } from '@react-three/drei';
+import CandidateScene from './candidate-scene';
 import CandidateInfo from './candidate-info';
 import CandidateStats from './candidate-stats';
 import CandidateControls from './candidate-controls';
 import { candidates } from '@/lib/candidate-data';
-import { useCanvasContext } from '@/lib/canvas-context';
-import CanvasContainer from './canvas-container';
+
 
 export default function CandidateSelector() {
   const [selectedCandidateIndex, setSelectedCandidateIndex] = useState(0);
   const selectedCandidate = candidates[selectedCandidateIndex];
-  const { setViewMode, setSelectedCandidates } = useCanvasContext()
-
-  useEffect(() => {
-    setViewMode('selector');
-    setSelectedCandidates([selectedCandidate])
-
-    return () => {
-      //No need to clean up, next component will set its own view so do I need to include this function?
-    }
-  }, [selectedCandidate, setViewMode, setSelectedCandidates])
 
   const handlePrevious = () => {
     setSelectedCandidateIndex((prev) =>
@@ -36,7 +28,18 @@ export default function CandidateSelector() {
     <div className='w-full h-screen flex flex-col md:flex-row bg-gray-900 text-white'>
       {/* 3D Viewer Section */}
       <div className='w-full md:w-2/3 h-1/2 md:h-screen relative'>
-        <CanvasContainer className='w-full h-full' id='selector'/>
+        <Canvas shadows camera={{ position: [0, 2, 5], fov: 50 }}>
+          <Suspense fallback={null}>
+            <CandidateScene candidate={selectedCandidate} />
+            <Environment preset='city' />
+            <OrbitControls
+              enableZoom={true}
+              enablePan={false}
+              minPolarAngle={Math.PI / 4}
+              maxPolarAngle={Math.PI / 2}
+            />
+          </Suspense>
+        </Canvas>
 
         {/* Selection Controls Overlay */}
         <div className='absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10'>

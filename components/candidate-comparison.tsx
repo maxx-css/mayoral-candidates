@@ -1,10 +1,9 @@
 'use client';
 import { Award, Briefcase, Target, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import PersistentCanvas from './persistent-canvas';
 import type { Candidate } from '@/lib/candidate-data';
-import { useCanvasContext } from '@/lib/canvas-context';
-import CanvasContainer from './canvas-container';
 
 interface CandidateComparisonProps {
   candidate1: Candidate;
@@ -16,17 +15,6 @@ export default function CandidateComparison({
   candidate2,
 }: CandidateComparisonProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const { setViewMode, setSelectedCandidates } = useCanvasContext();
-
-  // Set up the canvas when this component mounts
-  useEffect(() => {
-    setViewMode('comparison');
-    setSelectedCandidates([candidate1, candidate2]);
-
-    return () => {
-      //No need for cleanup
-    };
-  }, [candidate1, candidate2, setViewMode, setSelectedCandidates]);
 
   return (
     <div className='relative overflow-hidden rounded-xl bg-gray-800 shadow-xl'>
@@ -71,6 +59,17 @@ export default function CandidateComparison({
                 style={{ backgroundColor: candidate1.color }}
               ></span>
               <span>{candidate1.party}</span>
+            </div>
+
+            {/* 3D Model */}
+            <div className='w-full h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700'>
+              <PersistentCanvas candidate={candidate1} />
+
+              {/* Platform color indicator */}
+              <div
+                className='absolute bottom-0 left-0 right-0 h-1'
+                style={{ backgroundColor: candidate1.color }}
+              ></div>
             </div>
           </div>
 
@@ -151,6 +150,17 @@ export default function CandidateComparison({
               ></span>
               <span>{candidate2.party}</span>
             </div>
+
+            {/* 3D Model */}
+            <div className='w-full h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700'>
+              <PersistentCanvas candidate={candidate2} />
+
+              {/* Platform color indicator */}
+              <div
+                className='absolute bottom-0 left-0 right-0 h-1'
+                style={{ backgroundColor: candidate2.color }}
+              ></div>
+            </div>
           </div>
 
           {!isFullscreen && (
@@ -218,24 +228,6 @@ export default function CandidateComparison({
             </div>
           )}
         </div>
-      </div>
-
-      {/* CONSOLIDATED 3D CANVAS - This is the key change */}
-      <div className='w-full h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700'>
-        <CanvasContainer className='w-full h-full' id='comparison'/>
-
-        {/* Divider line between candidates */}
-        <div className='absolute top-0 bottom-0 left-1/2 w-0.5 bg-gray-700 transform -translate-x-1/2'></div>
-
-        {/* Platform color indicators */}
-        <div
-          className='absolute bottom-0 left-0 w-1/2 h-1'
-          style={{ backgroundColor: candidate1.color }}
-        ></div>
-        <div
-          className='absolute bottom-0 right-0 w-1/2 h-1'
-          style={{ backgroundColor: candidate2.color }}
-        ></div>
       </div>
     </div>
   );

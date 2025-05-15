@@ -11,10 +11,9 @@ import {
   Minimize2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
-import { useCanvasContext } from '@/lib/canvas-context';
+import { useState } from 'react';
+import PersistentCanvas from './persistent-canvas';
 import type { Candidate } from '@/lib/candidate-data';
-import CanvasContainer from './canvas-container';
 
 interface CandidatePreviewProps {
   candidate: Candidate;
@@ -28,16 +27,6 @@ export default function CandidatePreview({
   onAddToComparison,
 }: CandidatePreviewProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const { setViewMode, setSelectedCandidates } = useCanvasContext();
-
-  //Update global canvas when this component mounts
-  useEffect(() => {
-    setViewMode('preview');
-    setSelectedCandidates([candidate]);
-    return () => {
-      //No need to clean up, next component will set its own view
-    };
-  }, [candidate, setViewMode, setSelectedCandidates]);
 
   return (
     <div className='relative overflow-hidden rounded-xl bg-gray-800 shadow-xl'>
@@ -120,7 +109,18 @@ export default function CandidatePreview({
             </Button>
           </div>
 
-          <CanvasContainer className='w-full h-[200px] mb-4 relative rounded-lg overflow-hidden border border-gray-700' id='preview'/>
+          <div className='flex-grow relative rounded-lg overflow-hidden border border-gray-700'>
+            <PersistentCanvas
+              candidate={candidate}
+              height={isFullscreen ? 'h-[500px]' : 'h-[350px]'}
+            />
+
+            {/* Platform color indicator */}
+            <div
+              className='absolute bottom-0 left-0 right-0 h-1'
+              style={{ backgroundColor: candidate.color }}
+            ></div>
+          </div>
 
           {!isFullscreen && (
             <Button

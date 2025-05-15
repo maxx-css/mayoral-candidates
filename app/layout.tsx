@@ -1,23 +1,31 @@
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import type React from 'react';
+import type { Metadata } from 'next/types';
+import { Inter } from 'next/font/google';
 import './globals.css';
-import { CanvasProvider } from '@/lib/canvas-context';
-import GlobalCanvas from '@/components/global-canvas';
-import StableCanvasRoot from '@/components/stable-canvas-root';
+import { ThemeProvider } from '@/components/theme-provider';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const inter = Inter({
   subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'NYC Mayoral Candidate Arena',
   description: 'A place to learn about the NYC 2025 mayoral candidates',
+  keywords: [
+    'NYC',
+    'mayor',
+    'election',
+    'candidates',
+    'politics',
+    '3D',
+    'interactive',
+  ],
+  authors: [{ name: 'NYC Votes 3D Team' }],
+  viewport: 'width=device-width, initial-scale=1',
+  icons: {
+    // icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
@@ -26,15 +34,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en'>
+    <html lang='en' className={`${inter.variable}`}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`min-h-screen bg-gray-900 text-white antialiased`}
       >
-        <CanvasProvider>
-          <StableCanvasRoot/>
-          <GlobalCanvas />
+        <ThemeProvider attribute='class' defaultTheme='dark' enableSystem={false}>
           {children}
-        </CanvasProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

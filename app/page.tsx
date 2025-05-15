@@ -5,10 +5,8 @@ import CandidateSelectionGrid from '@/components/candidate-selection-grid';
 
 export default function Home() {
   return (
-    <div className='relative'>
       <div className='flex flex-col min-h-screen bg-gray-900 text-white'>
         <WelcomeModal />
-
         {/* Navigation Bar */}
         <header className='border-b bg-gray-900'>
           <div className='container mx-auto px-4 py-4 flex justify-between items-center'>
@@ -65,6 +63,5 @@ export default function Home() {
           </div>
         </footer>
       </div>
-    </div>
   );
 }
