@@ -126,7 +126,7 @@ export default function PersistentCanvas({
   height = 'h-full',
 }: PersistentCanvasProps) {
   const [isWebGLAvailable, setIsWebGLAvailable] = useState(true);
-  const [hasRenderingFailed, setHasRenderingFailed] = useState(true);
+  const [hasRenderingFailed, setHasRenderingFailed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
